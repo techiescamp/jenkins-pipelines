@@ -1,0 +1,79 @@
+pipeline {
+
+  agent{
+    label 'jenkins-agent'
+  }
+
+  environment {
+        REGION     = 'us-west-2'
+        ACCOUNT_ID = '814200988517'
+        REPO_NAME  = 'docker-image'
+        TAG        = 'flask-list'
+
+    }
+
+  stages {
+
+    stage('Requirement installation') {
+      steps {
+        dir("/home/ubuntu/workspace/flask/flask-app"){
+        sh '''
+            sudo apt-get update
+            sudo apt-get install -y python3-pip
+            pip install pytest
+            sudo apt install python3.10-venv -y
+            python3 -m venv env
+            . env/bin/activate
+            sudo apt install python3-flask -y
+        '''
+        }
+      }
+    }
+
+    stage('Test') {
+      steps {
+        dir("/home/ubuntu/workspace/flask/flask-app") {
+          sh 'python3 -m pytest test.py'
+        }
+      }
+    }
+
+    stage('Create Image'){
+      steps {
+        dir("/home/ubuntu/workspace/flask/flask-app"){
+        sh 'sudo docker build -t flask:1 .'
+        }
+      }
+    }
+
+    stage('Scan Image') {
+      steps {
+        sh 'sudo trivy image flask:1 >> ~/workspace/flask/flask-app/flask-1.output.txt'
+        }
+    }
+
+    stage('Run Image'){
+      steps {
+        sh 'sudo docker run -d -p 80:80 flask:1'
+      }
+    }
+
+    stage('Push to ECR'){
+      steps {
+        sh '''
+          aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com
+          docker tag flask:1 ${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/${REPO_NAME}:${TAG}
+          docker push ${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/${REPO_NAME}:${TAG}
+        '''
+      }
+  }
+    stage('Upload to S3'){
+      steps { 
+        sh '''
+          aws s3 mb s3://docker-b
+          aws s3 cp ~/workspace/flask/flask-app s3://docker-b/flask-list --recursive
+        '''
+      }
+    }
+  }
+}
