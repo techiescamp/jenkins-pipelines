@@ -61,7 +61,10 @@ pipeline {
 
         stage('Build Code') {
             when {
-                branch 'production'
+                allOf {
+                    branch 'production'
+                    changeRequest()
+                }
             }
             steps {
                 sh """
@@ -71,8 +74,12 @@ pipeline {
         }
         stage('Deploy App') {
             when {
-                changeRequest target: 'main'
+                allOf {
+                    branch 'main'
+                    buildingTag()
+                }
             }
+
             steps {
                 sh """
                 echo "Deploying Code"
