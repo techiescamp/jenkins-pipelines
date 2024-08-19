@@ -62,7 +62,7 @@ pipeline {
         stage('Build Code') {
             when {
                 allOf {
-                    branch 'production'
+                    branch 'main'
                     changeRequest()
                 }
             }
