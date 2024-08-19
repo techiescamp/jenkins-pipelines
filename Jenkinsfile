@@ -6,12 +6,12 @@ pipeline {
                 apiVersion: v1
                 kind: Pod
                 spec:
-                  containers:
-                  - name: busybox
-                    image: busybox
-                    command:
-                    - cat
-                    tty: true
+                    containers:
+                    - name: busybox
+                        image: busybox
+                        command:
+                        - cat
+                        tty: true
             '''
         }
     }
