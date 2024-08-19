@@ -61,7 +61,6 @@ pipeline {
         stage('Build Deploy Code') {
             when {
                 branch 'production'
-                changeRequest target: 'main'
             }
             steps {
                 sh """
