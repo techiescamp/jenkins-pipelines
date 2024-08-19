@@ -58,16 +58,22 @@ pipeline {
             }
         }
 
-        stage('Build Deploy Code') {
+        stage('Build Code') {
             when {
                 branch 'production'
-                changeRequest target: 'main'
             }
             steps {
                 sh """
                 echo "Building Artifact"
                 """
-
+            }
+        }
+        stage('Deploy App') {
+            when {
+                branch 'production'
+                changeRequest target: 'main'
+            }
+            steps {
                 sh """
                 echo "Deploying Code"
                 """
