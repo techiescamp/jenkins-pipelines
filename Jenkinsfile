@@ -60,9 +60,6 @@ pipeline {
         }
 
         stage('Build Code') {
-            when {
-                branch 'production'
-            }
             steps {
                 sh """
                 echo "Building Artifact"
@@ -70,9 +67,6 @@ pipeline {
             }
         }
         stage('Deploy App') {
-            when {
-                branch 'main'
-            }
             steps {
                 sh """
                 echo "Deploying Code"
