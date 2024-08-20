@@ -1,5 +1,4 @@
 pipeline {
-
     agent {
         kubernetes {
             yaml '''
@@ -23,61 +22,81 @@ pipeline {
     }
 
     stages {
-        
         stage('Cleanup Workspace') {
             steps {
                 cleanWs()
-                sh """
-                echo "Cleaned Up Workspace For Project"
-                """
+                sh "echo 'Cleaned Up Workspace For Project'"
             }
         }
 
         stage('Code Checkout') {
             steps {
-                checkout([
-                    $class: 'GitSCM', 
-                    branches: [[name: '*/main']], 
-                    userRemoteConfigs: [[url: 'https://github.com/spring-projects/spring-petclinic.git']]
-                ])
+                checkout scm // This will check out the appropriate branch or PR
             }
         }
 
-        stage(' Unit Testing') {
+        stage('Unit Testing') {
             steps {
-                sh """
-                echo "Running Unit Tests"
-                """
+                sh "echo 'Running Unit Tests'"
+                // Add actual unit test commands here
             }
         }
 
         stage('Code Analysis') {
             steps {
-                sh """
-                echo "Running Code Analysis"
-                """
+                sh "echo 'Running Code Analysis'"
+                // Add actual code analysis commands here
             }
         }
 
         stage('Build Code') {
             when {
-                branch 'production'
+                anyOf {
+                    branch 'main'
+                    branch 'develop'
+                }
             }
             steps {
-                sh """
-                echo "Building Artifact"
-                """
+                sh "echo 'Building Artifact'"
+                // Add actual build commands here
             }
         }
-        stage('Deploy App') {
+
+        stage('Deploy to Dev') {
             when {
-                changeRequest target: 'main'
+                branch 'develop'
             }
             steps {
-                sh """
-                echo "Deploying Code"
-                """
+                sh "echo 'Deploying to Dev Environment'"
+                // Add actual deployment commands for dev here
             }
+        }
+
+        stage('Deploy to Pre-prod') {
+            when {
+                branch 'main'
+            }
+            steps {
+                sh "echo 'Deploying to Pre-prod Environment'"
+                // Add actual deployment commands for pre-prod here
+            }
+        }
+
+        stage('PR Checks') {
+            when {
+                changeRequest()
+            }
+            steps {
+                sh "echo 'Running PR Checks'"
+                // Add any specific checks for PRs here
+            }
+        }
+    }
+
+    post {
+        always {
+            sh "echo 'Pipeline Completed'"
+            // Add any cleanup or notification steps here
         }
     }
 }
