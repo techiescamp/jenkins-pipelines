@@ -58,7 +58,7 @@ pipeline {
             }
         }
 
-        stage('Build Deploy Code') {
+        stage('Deploy Code To Dev & QA') {
             when {
                 branch 'develop'
             }
@@ -75,7 +75,7 @@ pipeline {
             }
         }
 
-        stage('Build Deploy Code') {
+        stage('Deploy Code to Staging and Pre-Prod') {
             when {
                 branch 'main'
             }
