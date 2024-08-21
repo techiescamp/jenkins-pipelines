@@ -31,64 +31,81 @@ pipeline {
 
         stage('Code Checkout') {
             steps {
-                checkout scm // This will check out the appropriate branch or PR
+                checkout scm
             }
         }
 
-        stage('Unit Testing') {
-            steps {
-                sh "echo 'Running Unit Tests'"
-                // Add actual unit test commands here
-            }
-        }
-
-        stage('Code Analysis') {
-            steps {
-                sh "echo 'Running Code Analysis'"
-                // Add actual code analysis commands here
-            }
-        }
-
-        stage('Build Code') {
-            when {
-                anyOf {
-                    branch 'main'
-                    branch 'develop'
-                }
-            }
-            steps {
-                sh "echo 'Building Artifact'"
-                // Add actual build commands here
-            }
-        }
-
-        stage('Deploy to Dev') {
-            when {
-                branch 'develop'
-            }
-            steps {
-                sh "echo 'Deploying to Dev Environment'"
-                // Add actual deployment commands for dev here
-            }
-        }
-
-        stage('Deploy to Pre-prod') {
-            when {
-                branch 'main'
-            }
-            steps {
-                sh "echo 'Deploying to Pre-prod Environment'"
-                // Add actual deployment commands for pre-prod here
-            }
-        }
-
-        stage('PR Checks') {
+        stage('PR Build and Test') {
             when {
                 changeRequest()
             }
-            steps {
-                sh "echo 'Running PR Checks'"
-                // Add any specific checks for PRs here
+            stages {
+                stage('Unit Testing') {
+                    steps {
+                        sh "echo 'Running Unit Tests for PR'"
+                        // Add actual unit test commands here
+                    }
+                }
+
+                stage('Code Analysis') {
+                    steps {
+                        sh "echo 'Running Code Analysis for PR'"
+                        // Add actual code analysis commands here
+                    }
+                }
+
+                stage('Build Code') {
+                    steps {
+                        sh "echo 'Building Artifact for PR'"
+                        // Add actual build commands here
+                    }
+                }
+            }
+        }
+
+        stage('Develop Branch Tasks') {
+            when {
+                allOf {
+                    branch 'develop'
+                    not { changeRequest() }
+                }
+            }
+            stages {
+                stage('Build for Develop') {
+                    steps {
+                        sh "echo 'Building for Develop'"
+                        // Add develop build steps
+                    }
+                }
+                stage('Deploy to Dev Environment') {
+                    steps {
+                        sh "echo 'Deploying to Dev Environment'"
+                        // Add dev deployment steps
+                    }
+                }
+            }
+        }
+
+        stage('Main Branch Tasks') {
+            when {
+                allOf {
+                    branch 'main'
+                    not { changeRequest() }
+                }
+            }
+            stages {
+                stage('Build for Production') {
+                    steps {
+                        sh "echo 'Building for Production'"
+                        // Add production build steps
+                    }
+                }
+                stage('Deploy to Pre-prod') {
+                    steps {
+                        sh "echo 'Deploying to Pre-prod Environment'"
+                        // Add pre-prod deployment steps
+                    }
+                }
             }
         }
     }
