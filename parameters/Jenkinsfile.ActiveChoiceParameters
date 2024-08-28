@@ -12,7 +12,6 @@ pipeline {
                                 filterLength: 1,
                                 filterable: false,
                                 name: 'Env',
-                                randomName: 'choice-parameter-727990044643608',
                                 script: groovyScript(
                                     fallbackScript: [
                                         classpath: [],
@@ -31,7 +30,7 @@ pipeline {
                             [$class: 'CascadeChoiceParameter', 
                                 choiceType: 'PT_SINGLE_SELECT', 
                                 description: 'Select the AMI from the Dropdown List',
-                                name: 'AMI_List',
+                                name: 'AMI_List',  // It's better to avoid spaces in the name
                                 referencedParameters: 'Env', 
                                 script: [
                                     $class: 'GroovyScript', 
@@ -58,7 +57,7 @@ pipeline {
                             [$class: 'DynamicReferenceParameter', 
                                 choiceType: 'ET_ORDERED_LIST', 
                                 description: 'Select the AMI based on the following information', 
-                                name: 'Image_Information',
+                                name: 'Image_Information',  // Avoid spaces in the name
                                 referencedParameters: 'Env', 
                                 script: [
                                     $class: 'GroovyScript', 
